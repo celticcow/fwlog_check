@@ -1,0 +1,6 @@
+Go to a cma, traverse through the firewalls and see if they are logging correctly.
+
+
+cpstat fw -f log_connection
+
+
