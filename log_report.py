@@ -25,28 +25,36 @@ go through a cma and find gateways
 def get_gateways_per_cma(ip_addr, sid):
     print("in get_gateays_per_cma")
 
+    gateways = {}
+
     gateways_result = apifunctions.api_call(ip_addr, "show-gateways-and-servers", {"details-level" : "full"}, sid)
 
-    print(json.dumps(gateways_result))
+    #print(json.dumps(gateways_result))
 
     for x in range(gateways_result['total']):
-        print(gateways_result['objects'][x]['name'])
+
+        gw = gateways_result['objects'][x]['name']
+
+        print(gw)
         print(gateways_result['objects'][x]['type'])
 
         if(gateways_result['objects'][x]['type'] == "CpmiClusterMember"):
 
-            print(gateways_result['objects'][x]['ipv4-address'])
+            #print(gateways_result['objects'][x]['ipv4-address'])
 
             ifaces = len(gateways_result['objects'][x]['interfaces'])
 
             #print(gateways_result['objects'][x]['interfaces'])
             for i in range(ifaces):
-                print(gateways_result['objects'][x]['interfaces'][i]['interface-name'])
+                #print(gateways_result['objects'][x]['interfaces'][i]['interface-name'])
 
                 if(gateways_result['objects'][x]['interfaces'][i]['interface-name'] == "Mgmt"):
-                    print(gateways_result['objects'][x]['interfaces'][i]['ipv4-address'])
+                    ip_info = gateways_result['objects'][x]['interfaces'][i]['ipv4-address']
+                    #print(ip_info)
+                    gateways[gw] = ip_info
         
         print("---------------------------------------------------------------------")
+    return(gateways)
     #end_of for  x in range   ipv4-address
 
 
@@ -68,8 +76,14 @@ def main():
 
     if(debug == 1):
         print("session id : " + sid)
+    
+    gateway_info = {}
 
-    get_gateways_per_cma(ip_addr, sid)
+    gateway_info = get_gateways_per_cma(ip_addr, sid)
+
+    print("***********************************************")
+    print(gateway_info)
+    print("***********************************************")
 
     #### Don't Need to publish 
     print("Starting Logout ZZZZZZZZ")
