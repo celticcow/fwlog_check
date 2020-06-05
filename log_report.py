@@ -57,8 +57,58 @@ def get_gateways_per_cma(ip_addr, sid):
     return(gateways)
     #end_of for  x in range   ipv4-address
 
-def script_to_run():
-    pass
+def script_to_run(fwname, ip_addr, sid):
+    ###
+    ###  cpstat fw -f log_connection
+    
+    debug = 1
+
+    get_log_status = {
+        "script-name" : "log status",
+        "script" : "cpstat fw -f log_connection",
+        "targets" : [fwname]
+    }
+
+    log_result = apifunctions.api_call(ip_addr, "run-script", get_log_status, sid)
+
+    if(debug == 1):
+        print(json.dumps(log_result))
+    
+    #get task_ID
+    task_id = log_result['tasks'][0]['task-id']
+
+    #get task info ... lots of stuff in here
+    task_info = apifunctions.api_call(ip_addr, "show-task", {"task-id" : task_id, "details-level" : "full"}, sid)
+
+    percent = task_info['tasks'][0]['progress-percentage']
+
+    while(percent != 100):
+        if(debug == 1):
+            print("In progress")
+        
+        time.sleep(1)
+
+        task_info = apifunctions.api_call(ip_addr, "show-task", {"task-id" : task_id, "details-level" : "full"}, sid)  #, "details-level" : "full"
+        status = task_info['tasks'][0]['status']
+        percent = task_info['tasks'][0]['progress-percentage']
+
+        if(debug == 1):
+            print(json.dumps(task_info))
+            print(percent)
+            print("/////////////////////////////////////")
+    #end of while loop
+
+    if(debug == 1):
+        print(json.dumps(task_info))
+    
+    if(debug == 1):
+        print("------------------------------------------------------\n\n")
+        print(task_info['tasks'][0]['task-details'][0]['responseMessage'])
+        print("\n\n\n")
+
+    return(task_info['tasks'][0]['task-details'][0]['responseMessage'])
+#end of script_to_run()
+
 
 def get_results():
     pass
@@ -71,10 +121,10 @@ def main():
 
     debug = 1
 
-    ip_addr = "146.18.96.16" #input("enter IP of MDS : ")
-    ip_cma  = "146.18.96.25" #input("enter IP of CMA : ")
-    user    = "gdunlap" #input("enter P1 user id : ")
-    password = "1qazxsw2" #getpass.getpass('Enter P1 Password : ')
+    ip_addr   = "146.18.96.16" #input("enter IP of MDS : ")
+    ip_cma    = "146.18.96.25" #input("enter IP of CMA : ")
+    user      = "gdunlap" #input("enter P1 user id : ")
+    password  = "1qazxsw2" #getpass.getpass('Enter P1 Password : ')
 
     sid = apifunctions.login(user, password, ip_addr, ip_cma)
 
@@ -88,7 +138,14 @@ def main():
     print("***********************************************")
     print(gateway_info)
     print("***********************************************")
-
+    for gw in gateway_info:
+        print(gw)
+        try:
+            base64_result = script_to_run(gw, ip_addr, sid)
+            print("++++++++++++++++++++++++++++++++++++++++++++++++")
+            print(base64_result)
+        except:
+            print("error running script")
     #### Don't Need to publish 
     print("Starting Logout ZZZZZZZZ")
     time.sleep(20)
