@@ -57,7 +57,11 @@ def get_gateways_per_cma(ip_addr, sid):
     return(gateways)
     #end_of for  x in range   ipv4-address
 
+def script_to_run():
+    pass
 
+def get_results():
+    pass
 
 """
 main
