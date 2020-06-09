@@ -26,6 +26,8 @@ go through a cma and find gateways
 def get_gateways_per_cma(ip_addr, sid):
     print("in get_gateays_per_cma")
 
+    debug = 0
+
     gateways = {}
 
     gateways_result = apifunctions.api_call(ip_addr, "show-gateways-and-servers", {"details-level" : "full"}, sid)
@@ -36,8 +38,9 @@ def get_gateways_per_cma(ip_addr, sid):
 
         gw = gateways_result['objects'][x]['name']
 
-        print(gw)
-        print(gateways_result['objects'][x]['type'])
+        if(debug == 1):
+            print(gw)
+            print(gateways_result['objects'][x]['type'])
 
         if(gateways_result['objects'][x]['type'] == "CpmiClusterMember"):
 
@@ -53,8 +56,8 @@ def get_gateways_per_cma(ip_addr, sid):
                     ip_info = gateways_result['objects'][x]['interfaces'][i]['ipv4-address']
                     #print(ip_info)
                     gateways[gw] = ip_info
-        
-        print("---------------------------------------------------------------------")
+        if(debug == 1):
+            print("---------------------------------------------------------------------")
     return(gateways)
     #end_of for  x in range   ipv4-address
 
@@ -62,7 +65,7 @@ def script_to_run(fwname, ip_addr, sid):
     ###
     ###  cpstat fw -f log_connection
     
-    debug = 1
+    debug = 0
 
     get_log_status = {
         "script-name" : "log status",
@@ -114,10 +117,10 @@ def script_to_run(fwname, ip_addr, sid):
 take base 64 result and convert
 """
 def get_results(b64):
-    debug = 1
+    debug = 0
 
     print("in function get_results")
-    
+
     a_base64_bytes = b64.encode('ascii')
     a_message_bytes = base64.b64decode(a_base64_bytes)
     a_message = a_message_bytes.decode('ascii')
@@ -132,7 +135,7 @@ main
 def main():
     print("start main")
 
-    debug = 1
+    debug = 0
 
     ip_addr   = "146.18.96.16" #input("enter IP of MDS : ")
     ip_cma    = "146.18.96.25" #input("enter IP of CMA : ")
@@ -155,8 +158,9 @@ def main():
         print(gw)
         try:
             base64_result = script_to_run(gw, ip_addr, sid)
-            print("++++++++++++++++++++++++++++++++++++++++++++++++")
-            print(base64_result)
+            if(debug == 1):
+                print("++++++++++++++++++++++++++++++++++++++++++++++++")
+                print(base64_result)
 
             print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
             print(get_results(base64_result))
