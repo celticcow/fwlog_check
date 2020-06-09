@@ -8,6 +8,7 @@ import time
 import getpass
 import ipaddress
 import apifunctions
+import base64
 
 #remove the InsecureRequestWarning messages
 import urllib3
@@ -109,9 +110,21 @@ def script_to_run(fwname, ip_addr, sid):
     return(task_info['tasks'][0]['task-details'][0]['responseMessage'])
 #end of script_to_run()
 
+"""
+take base 64 result and convert
+"""
+def get_results(b64):
+    debug = 1
 
-def get_results():
-    pass
+    print("in function get_results")
+    
+    a_base64_bytes = b64.encode('ascii')
+    a_message_bytes = base64.b64decode(a_base64_bytes)
+    a_message = a_message_bytes.decode('ascii')
+
+    print(a_message)
+
+#end of get_results()
 
 """
 main
@@ -144,6 +157,9 @@ def main():
             base64_result = script_to_run(gw, ip_addr, sid)
             print("++++++++++++++++++++++++++++++++++++++++++++++++")
             print(base64_result)
+
+            print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
+            print(get_results(base64_result))
         except:
             print("error running script")
     #### Don't Need to publish 
